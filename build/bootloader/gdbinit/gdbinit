@@ -1,0 +1,2 @@
+source /home/shelby/Downloads/esp32-valve-controller/build/bootloader/gdbinit/symbols
+source /home/shelby/Downloads/esp32-valve-controller/build/bootloader/gdbinit/connect

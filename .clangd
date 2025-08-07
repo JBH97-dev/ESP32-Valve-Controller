@@ -1,0 +1,6 @@
+CompileFlags:
+  CompilationDatabase: .
+Diagnostics:
+  UnusedIncludes: Strict
+  ClangTidy:
+    Add: [bugprone-*, modernize-*]
