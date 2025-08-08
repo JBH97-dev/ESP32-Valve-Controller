@@ -272,10 +272,6 @@
         color: white;
     }
 
-    .connection-status.disconnected {
-        background: #e53e3e;
-        color: white;
-    }
 
     @media (max-width: 768px) {
         .valve-grid {
@@ -360,31 +356,31 @@
         
         card.innerHTML = `
             <div class="valve-header">
-                <div class="valve-name">{valve.name}</div>
-                <div class="valve-id">ID: {valve.id}</div>
+                <div class="valve-name">${valve.name}</div>
+                <div class="valve-id">ID: ${valve.id}</div>
             </div>
             <div class="valve-info">
-                <div>GPIO: {valve.gpio_pin}</div>
-                <div>Mode: {valve.mode}</div>
-                <div>Runtime: {formatRuntime(valve.total_runtime_seconds)}</div>
-                <div>Enabled: {valve.enabled ? 'Yes' : 'No'}</div>
+                <div>GPIO: ${valve.gpio_pin}</div>
+                <div>Mode: ${valve.mode}</div>
+                <div>Runtime: ${formatRuntime(valve.total_runtime_seconds)}</div>
+                <div>Enabled: ${valve.enabled ? 'Yes' : 'No'}</div>
             </div>
             <div class="valve-controls">
-                <button class="btn btn-on" on:click={() => controlValve(valve.id, 'on')}"
-                        disabled={!valve.enabled}>
+                <button class="btn btn-on" on:click=${() => controlValve(valve.id, 'on')}"
+                        disabled=${!valve.enabled}>
                     Turn On
                 </button>
-                <button class="btn btn-off" on:click={() => controlValve(valve.id, 'off')">
+                <button class="btn btn-off" on:click=${() => controlValve(valve.id, 'off')}">
                     Turn Off
                 </button>
-                <button class="btn btn-toggle" on:click={() => controlValve(valve.id, 'toggle')}"
-                        disabled={!valve.enabled}>
+                <button class="btn btn-toggle" on:click=${() => controlValve(valve.id, 'toggle')}"
+                        disabled=${!valve.enabled}>
                     Toggle
                 </button>
             </div>
-            <div class="valve-status {valve.state}" id="status-{valve.id}">
-                <div class="status-indicator {valve.state}"></div>
-                Status: {valve.state.charAt(0).toUpperCase() + valve.state.slice(1)}</div>
+            <div class="valve-status ${valve.state}" id="status-${valve.id}">
+                <div class="status-indicator ${valve.state}"></div>
+                Status: ${valve.state.charAt(0).toUpperCase() + valve.state.slice(1)}</div>
         `;
 
         return card;
@@ -404,7 +400,7 @@
             
             if (response.ok) {
                 const result = await response.json();
-                console.log(`Valve {valveId} {action} successful:`, result);
+                console.log(`Valve ${valveId} ${action} successful:`, result);
                 
                 // Refresh system status
                 await loadSystemStatus();
@@ -416,7 +412,7 @@
         } catch (error) {
             console.error('Error controlling valve:', error);
             updateConnectionStatus(false);
-            alert(`Failed to {action} Valve {valveId}: {error.message}`);
+            alert(`Failed to ${action} Valve ${valveId}: ${error.message}`);
         } finally {
             document.body.classList.remove('loading');
         }
@@ -436,7 +432,7 @@
             
             if (response.ok) {
                 const result = await response.json();
-                console.log(`All valves {action} successful:`, result);
+                console.log(`All valves ${action} successful:`, result);
                 
                 // Refresh system status
                 await loadSystemStatus();
@@ -448,7 +444,7 @@
         } catch (error) {
             console.error('Error controlling all valves:', error);
             updateConnectionStatus(false);
-            alert(`Failed to turn all valves {action}: {error.message}`);
+            alert(`Failed to turn all valves ${action}: ${error.message}`);
         } finally {
             document.body.classList.remove('loading');
         }
@@ -505,7 +501,7 @@
 
     function formatRuntime(seconds) {
         if (seconds < 60) {
-            return `{seconds}s`;
+            return `${seconds}s`;
         } else if (seconds < 3600) {
             return `${Math.floor(seconds / 60)}m`;
         } else {

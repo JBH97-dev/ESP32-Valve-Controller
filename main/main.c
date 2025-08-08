@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <dirent.h>
 #include <string.h>
 #include <stdlib.h>
 #include "freertos/FreeRTOS.h"
@@ -53,6 +54,19 @@ void app_main(void)
 
     // Initialize SPIFFS
     ESP_ERROR_CHECK(init_spiffs());
+
+    DIR* dir = opendir("/spiffs");
+    if (dir == NULL) {
+        ESP_LOGE(TAG, "Failed to open directory");
+        return;
+    }
+
+    struct dirent *de;
+    while ((de = readdir(dir)) != NULL) {
+        ESP_LOGI(TAG, "Found file: %s", de->d_name);
+    }
+
+    closedir(dir);
 
     // Initialize valve service (business logic)
     ESP_ERROR_CHECK(valve_service_init(VALVE_COUNT));
