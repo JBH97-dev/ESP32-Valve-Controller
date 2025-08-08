@@ -1,0 +1,3 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/JBH97-dev/ESP32-Valve-Controller-WebApp.git
