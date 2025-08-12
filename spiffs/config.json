@@ -1,0 +1,7 @@
+{
+  "valve1_open_time": 60,
+  "valve2_open_time": 120,
+  "valve3_open_time": 180,
+  "valve4_open_time": 240,
+  "schedule_enabled": true
+}

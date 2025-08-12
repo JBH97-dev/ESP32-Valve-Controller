@@ -13,6 +13,8 @@
 #include "esp_http_server.h"
 #include "nvs_flash.h"
 
+#include "managers/config_manager.h"
+
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
@@ -80,6 +82,9 @@ void app_main(void)
     ESP_LOGI(TAG, "2. Use password: %s", WIFI_AP_PASS);
     ESP_LOGI(TAG, "3. Open browser to: http://192.168.4.1");
     ESP_LOGI(TAG, "===============================");
+
+    // Initialize config manager
+    config_manager_init();
 }
 
 static void wifi_init_ap(void)

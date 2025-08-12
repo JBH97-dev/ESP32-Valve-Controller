@@ -19,4 +19,4 @@ execute_process(
 
 
 #copying web app artifact to /spiffs partition
-spiffs_create_partition_image(spiffs  "${CMAKE_SOURCE_DIR}/spiffs/web" FLASH_IN_PROJECT)
+spiffs_create_partition_image(spiffs  "${CMAKE_SOURCE_DIR}/spiffs" FLASH_IN_PROJECT)

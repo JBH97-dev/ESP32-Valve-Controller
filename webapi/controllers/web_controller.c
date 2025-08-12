@@ -6,7 +6,7 @@ static const char *TAG = "web_controller";
 
 /* GET / handler */
 esp_err_t root_get_handler(httpd_req_t *req) {
-    FILE *f = fopen("/spiffs/index.html", "r");
+    FILE *f = fopen("/spiffs/web/index.html", "r");
     if (!f) {
         ESP_LOGE(TAG, "Failed to open /spiffs/web/index.html");
         httpd_resp_send_404(req);
