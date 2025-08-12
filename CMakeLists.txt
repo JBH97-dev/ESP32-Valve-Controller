@@ -11,4 +11,12 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 project(valve_controller)
 
-spiffs_create_partition_image(spiffs  "${CMAKE_SOURCE_DIR}/spiffs/web" FLASH_IN_PROJECT)  #copying web app artifact to /spiffs partition
+# Run JS script before build
+execute_process(
+    COMMAND node ${CMAKE_SOURCE_DIR}/scripts/copy_web_build_to_spiffs.js
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+
+#copying web app artifact to /spiffs partition
+spiffs_create_partition_image(spiffs  "${CMAKE_SOURCE_DIR}/spiffs/web" FLASH_IN_PROJECT)
