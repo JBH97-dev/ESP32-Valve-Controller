@@ -11,4 +11,4 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 project(valve_controller)
 
-# spiffs_create_partition_image(spiffs  "${CMAKE_SOURCE_DIR}/svelte_app/public" FLASH_IN_PROJECT)
+spiffs_create_partition_image(spiffs  "${CMAKE_SOURCE_DIR}/spiffs/web" FLASH_IN_PROJECT)  #copying web app artifact to /spiffs partition

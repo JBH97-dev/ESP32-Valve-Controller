@@ -168,7 +168,10 @@ static httpd_handle_t start_webserver(void)
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
     if (httpd_start(&server, &config) == ESP_OK) {
         ESP_LOGI(TAG, "Registering URI handlers");
-        
+
+        // Enables wildcard matching in http uri eg. uri ="/api/*"
+        //config.uri_match_fn = httpd_uri_match_wildcard;
+
         // Register web controller routes (serves HTML interface)
         web_controller_register_routes(server);
         
