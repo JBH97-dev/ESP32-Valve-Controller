@@ -1,0 +1,10 @@
+idf_component_register(
+    SRCS
+        "config_manager/config_manager.c"
+    INCLUDE_DIRS
+        "config_manager"
+    REQUIRES
+        spiffs
+        nvs_flash
+        json
+)

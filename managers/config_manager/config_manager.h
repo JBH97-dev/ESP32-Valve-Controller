@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include "cJSON.h"
 
 // Initialize the config manager (mount SPIFFS, load config)
 bool config_manager_init();
@@ -36,5 +37,8 @@ const char *config_get_string(const char *key, const char *default_value);
 
 // Set a string configuration value
 void config_set_string(const char *key, const char *value);
+
+// Get the config JSON object
+cJSON *config_manager_get_json();
 
 #endif // CONFIG_MANAGER_H

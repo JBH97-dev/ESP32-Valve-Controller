@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "esp_log.h"
+#include "esp_err.h"
 #include "esp_spiffs.h"
 #include "cJSON.h"
 
@@ -11,49 +12,33 @@ static const char *CONFIG_FILE = "/spiffs/config.json";
 static cJSON *config_json = NULL;
 
 bool config_manager_init() {
-    ESP_LOGI(TAG, "Initializing config manager");
+    ESP_LOGI(TAG, "Initializing SPIFFS");
 
-    if (!config_load()) {
-        ESP_LOGI(TAG, "Failed to load config, creating default");
-        config_json = cJSON_CreateObject();
-        config_save();
-    }
+    esp_vfs_spiffs_conf_t conf = {
+      .base_path = "/spiffs",
+      .partition_label = NULL,
+      .max_files = 5,
+      .format_if_mount_failed = true
+    };
 
-    char *json_string = cJSON_Print(config_json);
-    ESP_LOGW(TAG, "Config: %s", json_string);
-    cJSON_free(json_string);
+    esp_err_t ret = esp_vfs_spiffs_register(&conf);
 
-    return true;
-}
-
-bool config_load() {
-    ESP_LOGI(TAG, "Loading config from %s", CONFIG_FILE);
-
-    FILE *f = fopen(CONFIG_FILE, "r");
-    if (f == NULL) {
-        ESP_LOGI(TAG, "Config file not found");
-        return false;
-    }
-
-    fseek(f, 0, SEEK_END);
-    long fsize = ftell(f);
-    fseek(f, 0, SEEK_SET);  /* same as rewind(f); */
-
-    char *string = malloc(fsize + 1);
-    fread(string, fsize, 1, f);
-    fclose(f);
-
-    string[fsize] = '\0';
-
-    config_json = cJSON_Parse(string);
-    free(string);
-
-    if (config_json == NULL) {
-        const char *error_ptr = cJSON_GetErrorPtr();
-        if (error_ptr != NULL) {
-            ESP_LOGE(TAG, "Error before: %s", error_ptr);
+    if (ret != ESP_OK) {
+        if (ret == ESP_FAIL) {
+            ESP_LOGE(TAG, "Failed to mount or format filesystem");
+        } else {
+            ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
         }
         return false;
+    }
+
+    size_t total = 0, used = 0;
+    ret = esp_spiffs_info(NULL, &total, &used);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to get SPIFFS partition information (%s)", esp_err_to_name(ret));
+        return false;
+    } else {
+        ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
     }
 
     return true;
@@ -142,4 +127,42 @@ void config_set_string(const char *key, const char *value) {
     } else {
         cJSON_AddItemToObject(config_json, key, cJSON_CreateString(value));
     }
+}
+
+cJSON *config_manager_get_json() {
+    ESP_LOGI(TAG, "Loading config from %s", CONFIG_FILE);
+
+    FILE *f = fopen(CONFIG_FILE, "r");
+    if (f == NULL) {
+        ESP_LOGW(TAG, "Config file not found");
+        return NULL;
+    }
+
+    fseek(f, 0, SEEK_END);
+    long fsize = ftell(f);
+    fseek(f, 0, SEEK_SET);  /* same as rewind(f); */
+
+    char *string = malloc(fsize + 1);
+    fread(string, fsize, 1, f);
+    fclose(f);
+
+    string[fsize] = '\0';
+
+    cJSON *json = cJSON_Parse(string);
+    free(string);
+
+    if (json == NULL) {
+        const char *error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr != NULL) {
+            ESP_LOGE(TAG, "Error before: %s", error_ptr);
+        }
+        return config_json;
+    }
+
+    if (config_json != NULL) {
+        cJSON_Delete(config_json);
+    }
+    config_json = json;
+
+    return config_json;
 }

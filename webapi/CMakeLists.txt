@@ -15,4 +15,5 @@ idf_component_register(
         json
         spiffs
         esp_timer
+        managers
 )

@@ -4,6 +4,7 @@
 #include "esp_err.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include <endian.h>
 
 #define MAX_VALVE_COUNT 8
 #define MAX_VALVE_NAME_LENGTH 32
@@ -30,6 +31,8 @@ typedef struct {
     uint32_t last_activated_timestamp;
     bool is_enabled;
     bool is_inverted;  // For normally closed valves
+    int open_time;
+    bool is_scheduled;
 } valve_t;
 
 typedef struct {

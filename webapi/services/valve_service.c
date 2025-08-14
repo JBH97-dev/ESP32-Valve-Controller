@@ -27,6 +27,10 @@ esp_err_t valve_service_init(uint8_t valve_count)
         ESP_LOGE(TAG, "Failed to initialize valve hardware");
         return ret;
     }
+    
+    // Load valve configurations from config.json
+    
+
 
     // Create mutex for thread safety
     valve_mutex = xSemaphoreCreateMutex();
