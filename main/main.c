@@ -15,6 +15,8 @@
 #include "nvs_flash.h"
 #include "config_manager.h"
 
+#include "data_manager.h"
+
 // Include our web API components
 #include "../webapi/services/valve_service.h"
 #include "../webapi/controllers/valve_controller.h"
@@ -46,6 +48,10 @@ void app_main(void)
     // Initialize config manager
     
     config_manager_init();
+
+    // Initialize data manager
+    init_data_manager();
+
     // Initialize valve service (business logic)
     ESP_ERROR_CHECK(valve_service_init(VALVE_COUNT));
 
