@@ -2,6 +2,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <stdlib.h>
+#include "cJSON.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
@@ -12,11 +13,9 @@
 #include "esp_spiffs.h"
 #include "esp_http_server.h"
 #include "nvs_flash.h"
+#include "config_manager.h"
 
-#include "managers/config_manager.h"
-
-#include "lwip/err.h"
-#include "lwip/sys.h"
+#include "esp_vfs.h"
 
 // Include our web API components
 #include "../webapi/services/valve_service.h"
@@ -37,41 +36,21 @@ static const char *TAG = "main";
 static httpd_handle_t server = NULL;
 
 // Function declarations
-static esp_err_t init_spiffs(void);
 static httpd_handle_t start_webserver(void);
 static void stop_webserver(httpd_handle_t server);
 static void wifi_init_ap(void);
+static void list_spiffs_files();
 
 void app_main(void)
 {
     ESP_LOGI(TAG, "Starting ESP32 Valve Controller in Access Point mode");
 
-    // Initialize NVS
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK(ret);
-
-    // Initialize SPIFFS
-    ESP_ERROR_CHECK(init_spiffs());
-
-    DIR* dir = opendir("/spiffs");
-    if (dir == NULL) {
-        ESP_LOGE(TAG, "Failed to open directory");
-        return;
-    }
-
-    struct dirent *de;
-    while ((de = readdir(dir)) != NULL) {
-        ESP_LOGI(TAG, "Found file: %s", de->d_name);
-    }
-
-    closedir(dir);
-
     // Initialize valve service (business logic)
     ESP_ERROR_CHECK(valve_service_init(VALVE_COUNT));
+
+    nvs_flash_init();
+
+    list_spiffs_files();
 
     // Initialize WiFi Access Point
     wifi_init_ap();
@@ -83,8 +62,12 @@ void app_main(void)
     ESP_LOGI(TAG, "3. Open browser to: http://192.168.4.1");
     ESP_LOGI(TAG, "===============================");
 
+
     // Initialize config manager
     config_manager_init();
+    
+    ESP_LOGW(TAG,"Config file: %s", cJSON_Print(config_manager_get_json()) );
+
 }
 
 static void wifi_init_ap(void)
@@ -128,41 +111,6 @@ static void wifi_init_ap(void)
     }
 }
 
-static esp_err_t init_spiffs(void)
-{
-    ESP_LOGI(TAG, "Initializing SPIFFS");
-
-    esp_vfs_spiffs_conf_t conf = {
-        .base_path = "/spiffs",
-        .partition_label = NULL,
-        .max_files = 5,
-        .format_if_mount_failed = true
-    };
-
-    esp_err_t ret = esp_vfs_spiffs_register(&conf);
-
-    if (ret != ESP_OK) {
-        if (ret == ESP_FAIL) {
-            ESP_LOGE(TAG, "Failed to mount or format filesystem");
-        } else if (ret == ESP_ERR_NOT_FOUND) {
-            ESP_LOGE(TAG, "Failed to find SPIFFS partition");
-        } else {
-            ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
-        }
-        return ret;
-    }
-
-    size_t total = 0, used = 0;
-    ret = esp_spiffs_info(NULL, &total, &used);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to get SPIFFS partition information (%s)", esp_err_to_name(ret));
-    } else {
-        ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
-    }
-
-    return ESP_OK;
-}
-
 static httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
@@ -193,4 +141,47 @@ static httpd_handle_t start_webserver(void)
 static void stop_webserver(httpd_handle_t server)
 {
     httpd_stop(server);
+}
+
+static void list_spiffs_files()
+{
+    ESP_LOGI(TAG, "Listing files in /spiffs");
+
+    esp_vfs_spiffs_conf_t conf = {
+        .base_path = "/spiffs",
+        .partition_label = NULL,
+        .max_files = 5,
+        .format_if_mount_failed = false
+    };
+
+    esp_err_t ret = esp_vfs_spiffs_register(&conf);
+
+    if (ret != ESP_OK) {
+        if (ret == ESP_FAIL) {
+            ESP_LOGE(TAG, "Failed to mount or format filesystem");
+        } else {
+            ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
+        }
+        return;
+    }
+
+    size_t total = 0, used = 0;
+    ret = esp_spiffs_info(NULL, &total, &used);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to get SPIFFS partition information (%s)", esp_err_to_name(ret));
+    } else {
+        ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
+    }
+
+    DIR *dir = opendir("/spiffs");
+    if (dir == NULL) {
+        ESP_LOGE(TAG, "Failed to open /spiffs directory");
+        return;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        ESP_LOGW(TAG, "File: %s", entry->d_name);
+    }
+    closedir(dir);
 }
