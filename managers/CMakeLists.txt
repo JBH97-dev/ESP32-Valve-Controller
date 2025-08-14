@@ -1,7 +1,9 @@
 idf_component_register(
     SRCS
+        "spiffs_manager/spiffs_manager.c"
         "config_manager/config_manager.c"
     INCLUDE_DIRS
+        "spiffs_manager"
         "config_manager"
     REQUIRES
         spiffs

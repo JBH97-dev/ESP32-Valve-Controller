@@ -15,8 +15,6 @@
 #include "nvs_flash.h"
 #include "config_manager.h"
 
-#include "esp_vfs.h"
-
 // Include our web API components
 #include "../webapi/services/valve_service.h"
 #include "../webapi/controllers/valve_controller.h"
@@ -45,12 +43,15 @@ void app_main(void)
 {
     ESP_LOGI(TAG, "Starting ESP32 Valve Controller in Access Point mode");
 
+    // Initialize config manager
+    
+    config_manager_init();
     // Initialize valve service (business logic)
     ESP_ERROR_CHECK(valve_service_init(VALVE_COUNT));
 
     nvs_flash_init();
-
-    list_spiffs_files();
+    
+    ESP_LOGW(TAG,"Config file: %s", cJSON_Print(config_manager_get_json()) );
 
     // Initialize WiFi Access Point
     wifi_init_ap();
@@ -61,12 +62,6 @@ void app_main(void)
     ESP_LOGI(TAG, "2. Use password: %s", WIFI_AP_PASS);
     ESP_LOGI(TAG, "3. Open browser to: http://192.168.4.1");
     ESP_LOGI(TAG, "===============================");
-
-
-    // Initialize config manager
-    config_manager_init();
-    
-    ESP_LOGW(TAG,"Config file: %s", cJSON_Print(config_manager_get_json()) );
 
 }
 
@@ -147,32 +142,6 @@ static void list_spiffs_files()
 {
     ESP_LOGI(TAG, "Listing files in /spiffs");
 
-    esp_vfs_spiffs_conf_t conf = {
-        .base_path = "/spiffs",
-        .partition_label = NULL,
-        .max_files = 5,
-        .format_if_mount_failed = false
-    };
-
-    esp_err_t ret = esp_vfs_spiffs_register(&conf);
-
-    if (ret != ESP_OK) {
-        if (ret == ESP_FAIL) {
-            ESP_LOGE(TAG, "Failed to mount or format filesystem");
-        } else {
-            ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
-        }
-        return;
-    }
-
-    size_t total = 0, used = 0;
-    ret = esp_spiffs_info(NULL, &total, &used);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to get SPIFFS partition information (%s)", esp_err_to_name(ret));
-    } else {
-        ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
-    }
-
     DIR *dir = opendir("/spiffs");
     if (dir == NULL) {
         ESP_LOGE(TAG, "Failed to open /spiffs directory");
@@ -181,7 +150,7 @@ static void list_spiffs_files()
 
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL) {
-        ESP_LOGW(TAG, "File: %s", entry->d_name);
+        ESP_LOGI(TAG, "File: %s", entry->d_name);
     }
     closedir(dir);
 }
