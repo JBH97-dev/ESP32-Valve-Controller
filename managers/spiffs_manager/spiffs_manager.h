@@ -13,8 +13,12 @@ typedef struct spiffs_manager_s{
      
 } spiffs_manager_t;
 
-esp_err_t spiffs_manager_init();
+spiffs_manager_t* spiffs_manager_init();
+
 FILE *spiffs_open_file(const char *path, const char *mode);
 FILE *spiffs_create_file(const char *path);
+
+esp_err_t spiffs_read_valves_json(char **json_string);
+esp_err_t spiffs_write_valves_json(const char *json_string);
 
 #endif
