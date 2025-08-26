@@ -4,15 +4,25 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "cJSON.h"
+#include <stdio.h>
+#include <string.h>
+#include "esp_log.h"
+#include "esp_err.h"
+#include "esp_spiffs.h"
+#include "cJSON.h"
+#include "spiffs_manager.h"
 
-// Initialize the config manager (mount SPIFFS, load config)
-bool config_manager_init();
+typedef struct config_manager_s{
+    esp_err_t           (*save_change)(void);
+    esp_err_t           (*load_config)(void);    
+    cJSON*              (*get_config_json)(void);            
+}config_manager_t;
 
-// Load the configuration from the file
-bool config_load();
+//init function 
+config_manager_t* config_manager_init();
 
-// Save the configuration to the file
-bool config_save();
+//returns JSON of config.json
+cJSON *config_manager_get_json() ;
 
 // Get an integer configuration value
 int config_get_int(const char *key, int default_value);
@@ -38,7 +48,5 @@ const char *config_get_string(const char *key, const char *default_value);
 // Set a string configuration value
 void config_set_string(const char *key, const char *value);
 
-// Get the config JSON object
-cJSON *config_manager_get_json();
 
 #endif // CONFIG_MANAGER_H

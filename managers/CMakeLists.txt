@@ -3,10 +3,12 @@ idf_component_register(
         "spiffs_manager/spiffs_manager.c"
         "config_manager/config_manager.c"
         "data_manager/data_manager.c"
+        "managers.c"
     INCLUDE_DIRS
         "spiffs_manager"
         "config_manager"
         "data_manager"
+        "."
     REQUIRES
         spiffs
         nvs_flash

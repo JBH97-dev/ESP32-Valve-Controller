@@ -1,6 +1,5 @@
 #include "spiffs_manager.h"
-#include "esp_log.h"
-#include "esp_spiffs.h"
+
 
 static const char *TAG = "spiffs_manager";
 
@@ -20,4 +19,21 @@ FILE *spiffs_create_file(const char *path) {
         ESP_LOGE(TAG, "Failed to create file %s", path);
     }
     return f;
+}
+
+void list_spiffs_files_to_console()
+{
+    ESP_LOGI(TAG, "Listing files in /spiffs");
+
+    DIR *dir = opendir("/spiffs");
+    if (dir == NULL) {
+        ESP_LOGE(TAG, "Failed to open /spiffs directory");
+        return;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        ESP_LOGI(TAG, "File: %s", entry->d_name);
+    }
+    closedir(dir);
 }

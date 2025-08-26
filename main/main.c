@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <dirent.h>
 #include <string.h>
 #include <stdlib.h>
 #include "cJSON.h"
@@ -18,9 +17,9 @@
 #include "data_manager.h"
 
 // Include our web API components
-#include "../webapi/services/valve_service.h"
-#include "../webapi/controllers/valve_controller.h"
-#include "../webapi/controllers/web_controller.h"
+#include "valve_service.h"
+#include "valve_controller.h"
+#include "web_controller.h"
 
 // WiFi Configuration - Access Point Mode
 #define WIFI_AP_SSID      "ESP32-Valve-Controller"
@@ -39,7 +38,6 @@ static httpd_handle_t server = NULL;
 static httpd_handle_t start_webserver(void);
 static void stop_webserver(httpd_handle_t server);
 static void wifi_init_ap(void);
-static void list_spiffs_files();
 
 void app_main(void)
 {
@@ -50,7 +48,7 @@ void app_main(void)
     config_manager_init();
 
     // Initialize data manager
-    init_data_manager();
+    data_manager_init();
 
     // Initialize valve service (business logic)
     ESP_ERROR_CHECK(valve_service_init(VALVE_COUNT));
@@ -144,19 +142,3 @@ static void stop_webserver(httpd_handle_t server)
     httpd_stop(server);
 }
 
-static void list_spiffs_files()
-{
-    ESP_LOGI(TAG, "Listing files in /spiffs");
-
-    DIR *dir = opendir("/spiffs");
-    if (dir == NULL) {
-        ESP_LOGE(TAG, "Failed to open /spiffs directory");
-        return;
-    }
-
-    struct dirent *entry;
-    while ((entry = readdir(dir)) != NULL) {
-        ESP_LOGI(TAG, "File: %s", entry->d_name);
-    }
-    closedir(dir);
-}
