@@ -18,5 +18,5 @@ execute_process(
 )
 
 
-#copying web app artifact to /spiffs partition
+#copying static files (config files & webapp) to /spiffs partition
 spiffs_create_partition_image(spiffs  "${CMAKE_SOURCE_DIR}/spiffs" FLASH_IN_PROJECT)
