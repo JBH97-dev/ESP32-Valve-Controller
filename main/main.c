@@ -11,6 +11,7 @@
 #include "esp_log.h"
 #include "esp_spiffs.h"
 #include "esp_http_server.h"
+#include "managers.h"
 #include "nvs_flash.h"
 #include "config_manager.h"
 
@@ -33,6 +34,7 @@
 // Global variables
 static const char *TAG = "main";
 static httpd_handle_t server = NULL;
+managers_t managers = {0};
 
 // Function declarations
 static httpd_handle_t start_webserver(void);
@@ -44,16 +46,13 @@ void app_main(void)
     ESP_LOGI(TAG, "Starting ESP32 Valve Controller in Access Point mode");
 
     // Initialize config manager
-    
-    config_manager_init();
-
-    // Initialize data manager
-    data_manager_init();
+    ESP_ERROR_CHECK(managers_init(&managers));
 
     // Initialize valve service (business logic)
     ESP_ERROR_CHECK(valve_service_init(VALVE_COUNT));
 
-    nvs_flash_init();
+    // Initialize NVS flash partition
+    ESP_ERROR_CHECK(nvs_flash_init());
     
     ESP_LOGW(TAG,"Config file: %s", cJSON_Print(config_manager_get_json()) );
 
@@ -125,7 +124,7 @@ static httpd_handle_t start_webserver(void)
         //config.uri_match_fn = httpd_uri_match_wildcard;
 
         // Register web controller routes (serves HTML interface)
-        web_controller_register_routes(server);
+        web_controller_register_routes(server,&managers);
         
         // Register valve controller routes (API endpoints)
         valve_controller_register_routes(server);
