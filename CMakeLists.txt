@@ -11,6 +11,12 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 project(valve_controller)
 
+# Run npm build to build the webapp artifacts
+execute_process(
+    COMMAND npm run build
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/frontend
+)
+
 # Run JS script before build
 execute_process(
     COMMAND node ${CMAKE_SOURCE_DIR}/scripts/copy_web_build_to_spiffs.js
