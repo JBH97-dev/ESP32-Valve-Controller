@@ -11,10 +11,11 @@
 #include "esp_log.h"
 #include "esp_spiffs.h"
 #include "esp_http_server.h"
-#include "managers.h"
 #include "nvs_flash.h"
-#include "config_manager.h"
+#include "esp_gdbstub.h"
 
+#include "managers.h"
+#include "config_manager.h"
 #include "data_manager.h"
 
 // Include our web API components
@@ -44,7 +45,7 @@ static void wifi_init_ap(void);
 void app_main(void)
 {
     ESP_LOGI(TAG, "Starting ESP32 Valve Controller in Access Point mode");
-
+    esp_log_level_set("wifi", ESP_LOG_WARN);
     // Initialize config manager
     ESP_ERROR_CHECK(managers_init(&managers));
 
@@ -115,6 +116,7 @@ static httpd_handle_t start_webserver(void)
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.lru_purge_enable = true;
     config.max_uri_handlers = 16;
+    config.uri_match_fn = httpd_uri_match_wildcard;
 
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
     if (httpd_start(&server, &config) == ESP_OK) {
