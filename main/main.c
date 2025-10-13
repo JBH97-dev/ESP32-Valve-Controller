@@ -19,7 +19,6 @@
 #include "data_manager.h"
 
 // Include our web API components
-#include "valve_service.h"
 #include "valve_controller.h"
 #include "web_controller.h"
 
@@ -28,9 +27,6 @@
 #define WIFI_AP_PASS      "valve123"
 #define WIFI_AP_CHANNEL   1
 #define WIFI_AP_MAX_CONN  4
-
-// Application Configuration
-#define VALVE_COUNT 4
 
 // Global variables
 static const char *TAG = "main";
@@ -48,9 +44,6 @@ void app_main(void)
     esp_log_level_set("wifi", ESP_LOG_WARN);
     // Initialize config manager
     ESP_ERROR_CHECK(managers_init(&managers));
-
-    // Initialize valve service (business logic)
-    ESP_ERROR_CHECK(valve_service_init(VALVE_COUNT));
 
     // Initialize NVS flash partition
     ESP_ERROR_CHECK(nvs_flash_init());
