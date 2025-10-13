@@ -3,6 +3,8 @@
 
 static const char *TAG = "config_manager";
 static const char *CONFIG_FILE = "/spiffs/config.json";
+static const char *DEFAULT_CONFIG_FILE = "/spiffs/default_config.json";
+
 
 static cJSON *config_json = NULL;
 
@@ -41,7 +43,12 @@ esp_err_t config_load() {
 
     FILE *f = spiffs_open_file(CONFIG_FILE, "r");
     if (f == NULL) {
-        ESP_LOGW(TAG, "Config file not found");
+        ESP_LOGW(TAG, "Config file not found,trying to load default config file");
+    }
+    
+    FILE *f = spiffs_open_file(DEFAULT_CONFIG_FILE, "r");
+    if (f == NULL) {
+        ESP_LOGW(TAG, "default config file not found");
         return ESP_FAIL;
     }
 
