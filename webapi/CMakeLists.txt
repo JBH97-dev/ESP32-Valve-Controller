@@ -7,9 +7,9 @@ idf_component_register(
         "controllers"
     REQUIRES 
         esp_http_server
-        driver
+        
         json
         spiffs
-        esp_timer
+        
         managers
 )
