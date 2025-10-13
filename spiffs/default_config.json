@@ -3,25 +3,21 @@
   {
     "valve1": {
       "name": "Valve 1",
-      "open_time": 60,
       "default_state": false,
       "is_scheduled": false
     },
     "valve2": {
       "name": "Valve 2",
-      "open_time": 120,
       "default_state": false,
       "is_scheduled": false
     },
     "valve3": {
       "name": "Valve 3",
-      "open_time": 180,
       "default_state": false,
       "is_scheduled": false
     },
     "valve4": {
       "name": "Valve 4",
-      "open_time": 240,
       "default_state": false,
       "is_scheduled": false
     }
