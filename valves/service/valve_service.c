@@ -1,10 +1,4 @@
 #include "valve_service.h"
-#include "driver/gpio.h"
-#include "esp_log.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/semphr.h"
-#include <string.h>
 
 static const char *TAG = "valve_service";
 static SemaphoreHandle_t valve_mutex = NULL;

@@ -1,13 +1,9 @@
 idf_component_register(
     SRCS 
-        "models/valve_model.c"
-        "services/valve_service.c" 
         "controllers/valve_controller.c"
         "controllers/web_controller.c"
     INCLUDE_DIRS 
         "."
-        "models"
-        "services" 
         "controllers"
     REQUIRES 
         esp_http_server

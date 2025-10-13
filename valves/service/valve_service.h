@@ -1,8 +1,14 @@
 #ifndef VALVE_SERVICE_H
 #define VALVE_SERVICE_H
 
+#include "driver/gpio.h"
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+#include <string.h>
 #include "esp_err.h"
-#include "../models/valve_model.h"
+#include "../model/valve_model.h"
 
 // Service function declarations
 esp_err_t valve_service_init(uint8_t valve_count);
