@@ -1,11 +1,13 @@
 idf_component_register(
     SRCS
-        "models/valve_model.c"
-        "services/valve_service.c"
+        "model/valve_model.c"
+        "service/valve_service.c"
     INCLUDE_DIRS
         "service"
         "model"
     REQUIRES
         nvs_flash
         json
+        driver
+        esp_timer
 )

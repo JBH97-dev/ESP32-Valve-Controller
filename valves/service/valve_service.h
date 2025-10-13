@@ -8,7 +8,7 @@
 #include "freertos/semphr.h"
 #include <string.h>
 #include "esp_err.h"
-#include "../model/valve_model.h"
+#include "valve_model.h"
 
 // Service function declarations
 esp_err_t valve_service_init(uint8_t valve_count);
