@@ -3,7 +3,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-set(EXTRA_COMPONENT_DIRS webapi managers)
+set(EXTRA_COMPONENT_DIRS webapi managers valves)
 
 set(PARTITION_TABLE_CSV file("partitions.csv"))
 
