@@ -22,12 +22,13 @@ config_manager_t* config_manager_init() {
     
 
     if (config_load() != ESP_OK) {
-        ESP_LOGI(TAG, "Config file not found or failed to load, creating default");
-        config_json = cJSON_CreateObject();
-        if (config_json == NULL) {
-            ESP_LOGE(TAG, "Failed to create config JSON object");
+        ESP_LOGI(TAG, "Config file not found or failed to load, trying to load default");
+        
+        if (default_config_load() != ESP_OK) {
+            ESP_LOGE(TAG, "Failed to load deafult config file, Aborting");
             return NULL;
         }
+        
         if (config_save() != ESP_OK) {
             ESP_LOGE(TAG, "Failed to save default config");
             cJSON_Delete(config_json);
@@ -38,17 +39,55 @@ config_manager_t* config_manager_init() {
     return config_manager;
 }
 
+esp_err_t default_config_load() {
+    ESP_LOGI(TAG, "Loading config from %s", CONFIG_FILE);
+
+    FILE *f = spiffs_open_file(DEFAULT_CONFIG_FILE, "r");
+    if (f == NULL) {
+        ESP_LOGW(TAG, "Default config file not found");
+        return ESP_FAIL;
+    }
+
+    fseek(f, 0, SEEK_END);
+    long fsize = ftell(f);
+    fseek(f, 0, SEEK_SET);  /* same as rewind(f); */
+
+    char *string = malloc(fsize + 1);
+    if (string == NULL) {
+        ESP_LOGE(TAG, "Failed to allocate memory for config file content");
+        fclose(f);
+        return ESP_FAIL;
+    }
+    fread(string, fsize, 1, f);
+    fclose(f);
+
+    string[fsize] = '\0';
+
+    cJSON *json = cJSON_Parse(string);
+    free(string);
+
+    if (json == NULL) {
+        const char *error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr != NULL) {
+            ESP_LOGE(TAG, "Error before: %s", error_ptr);
+        }
+        return ESP_FAIL;
+    }
+
+    if (config_json != NULL) {
+        cJSON_Delete(config_json);
+    }
+    config_json = json;
+
+    return ESP_OK;
+}
+
 esp_err_t config_load() {
     ESP_LOGI(TAG, "Loading config from %s", CONFIG_FILE);
 
     FILE *f = spiffs_open_file(CONFIG_FILE, "r");
     if (f == NULL) {
         ESP_LOGW(TAG, "Config file not found,trying to load default config file");
-    }
-    
-    FILE *f = spiffs_open_file(DEFAULT_CONFIG_FILE, "r");
-    if (f == NULL) {
-        ESP_LOGW(TAG, "default config file not found");
         return ESP_FAIL;
     }
 
