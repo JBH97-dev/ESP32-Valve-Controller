@@ -2,7 +2,7 @@
 #define VALVE_CONTROLLER_H
 
 #include "esp_http_server.h"
-
+#include "managers.h"
 // Controller function declarations
 esp_err_t valve_controller_register_routes(httpd_handle_t server);
 
